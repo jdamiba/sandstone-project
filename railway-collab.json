@@ -1,0 +1,12 @@
+{
+  "name": "sandstone-collaboration-server",
+  "description": "ShareJS collaboration server for real-time document editing",
+  "startCommand": "npm run start:collab",
+  "healthcheckPath": "/health",
+  "healthcheckTimeout": 300,
+  "restartPolicyType": "on_failure",
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "3002"
+  }
+}

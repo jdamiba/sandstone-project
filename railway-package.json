@@ -1,0 +1,25 @@
+{
+  "name": "sandstone-collaboration-server",
+  "version": "1.0.0",
+  "description": "ShareJS collaboration server for real-time document editing",
+  "main": "server/sharejs-server.ts",
+  "scripts": {
+    "start": "tsx server/sharejs-server.ts",
+    "start:collab": "tsx server/sharejs-server.ts",
+    "build": "tsc",
+    "dev": "tsx server/sharejs-server.ts"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.4",
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1",
+    "tsx": "^4.6.2"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.9",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

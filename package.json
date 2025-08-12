@@ -1,0 +1,46 @@
+{
+  "name": "sandstone-v1",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:all": "concurrently \"npm run dev\" \"npm run collab:server\"",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:init": "tsx scripts/init-db.ts",
+    "db:add-search": "tsx scripts/add-search-analytics.ts",
+    "db:test": "tsx -e \"import('./lib/database').then(db => db.testConnection()).then(result => console.log('Database connection:', result ? '✅ Success' : '❌ Failed'))\"",
+    "db:check": "tsx scripts/check-tables.ts",
+    "collab:server": "tsx server/sharejs-server.ts",
+    "start:collab": "tsx server/sharejs-server.ts",
+    "start:all": "concurrently \"npm run start\" \"npm run start:collab\""
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.30.0",
+    "@types/pg": "^8.15.5",
+    "dotenv": "^17.2.1",
+    "next": "15.4.6",
+    "pg": "^8.16.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "redis": "^5.8.0",
+    "sharejs": "^0.1.5",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "svix": "^1.71.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "concurrently": "^9.2.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.6",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.3",
+    "typescript": "^5"
+  }
+}

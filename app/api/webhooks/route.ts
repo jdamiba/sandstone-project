@@ -8,6 +8,12 @@ import {
   deleteUser,
   getUserByClerkId,
 } from "@/lib/database";
+import {
+  BadRequestError,
+  UnauthorizedError,
+  handleDatabaseError,
+  formatErrorResponse,
+} from "@/lib/errors";
 
 // Use Clerk's built-in types
 import type { UserJSON } from "@clerk/nextjs/server";
@@ -25,9 +31,9 @@ export async function POST(req: Request) {
 
     // If there are no headers, error out
     if (!svix_id || !svix_timestamp || !svix_signature) {
-      return new NextResponse("Error occured -- no svix headers", {
-        status: 400,
-      });
+      const error = new BadRequestError("Missing required webhook headers");
+      const errorResponse = formatErrorResponse(error);
+      return NextResponse.json(errorResponse, { status: error.statusCode });
     }
 
     // Get the body
@@ -47,9 +53,9 @@ export async function POST(req: Request) {
       }) as WebhookEvent;
     } catch (err) {
       console.error("Error verifying webhook:", err);
-      return new NextResponse("Error occured", {
-        status: 400,
-      });
+      const error = new UnauthorizedError("Invalid webhook signature");
+      const errorResponse = formatErrorResponse(error);
+      return NextResponse.json(errorResponse, { status: error.statusCode });
     }
 
     // Handle the webhook
@@ -73,9 +79,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Webhook error:", error);
-    return new NextResponse("Internal Server Error", {
-      status: 500,
-    });
+    const appError = handleDatabaseError(error);
+    const errorResponse = formatErrorResponse(appError);
+    return NextResponse.json(errorResponse, { status: appError.statusCode });
   }
 }
 
@@ -112,7 +118,7 @@ async function handleUserCreated(data: UserJSON) {
     console.log("Created new user:", newUser.id);
   } catch (error) {
     console.error("Error creating user:", error);
-    throw error;
+    throw handleDatabaseError(error);
   }
 }
 
@@ -145,7 +151,7 @@ async function handleUserUpdated(data: UserJSON) {
     }
   } catch (error) {
     console.error("Error updating user:", error);
-    throw error;
+    throw handleDatabaseError(error);
   }
 }
 
@@ -163,6 +169,6 @@ async function handleUserDeleted(data: { id: string }) {
     }
   } catch (error) {
     console.error("Error deleting user:", error);
-    throw error;
+    throw handleDatabaseError(error);
   }
 }

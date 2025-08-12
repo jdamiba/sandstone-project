@@ -1,0 +1,864 @@
+{
+  "info": {
+    "name": "Document Editing API",
+    "description": "Complete API collection for the document editing application with real-time collaboration features",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "sessionToken",
+      "value": "YOUR_SESSION_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "documentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user"]
+            }
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document Management",
+      "item": [
+        {
+          "name": "Create New Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sample Document\",\n  \"content\": \"This is the initial content of the document.\",\n  \"description\": \"A sample document for testing\",\n  \"tags\": [\"sample\", \"test\", \"document\"],\n  \"is_public\": true,\n  \"allow_comments\": true,\n  \"allow_suggestions\": false,\n  \"require_approval\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.document && response.document.id) {",
+                  "        pm.collectionVariables.set('documentId', response.document.id);",
+                  "        console.log('Document ID saved:', response.document.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Documents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents"]
+            }
+          }
+        },
+        {
+          "name": "Get Public Documents Only",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents?public=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents"],
+              "query": [
+                {
+                  "key": "public",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single Document",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Document Metadata",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Document Title\",\n  \"description\": \"Updated description\",\n  \"tags\": [\"updated\", \"tags\"],\n  \"is_public\": false,\n  \"allow_comments\": true,\n  \"allow_suggestions\": true,\n  \"require_approval\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document Content Changes",
+      "item": [
+        {
+          "name": "Apply Single Text Change",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"textToReplace\": \"old text\",\n  \"newText\": \"new text\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/changes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "changes"]
+            }
+          }
+        },
+        {
+          "name": "Apply Multiple Text Changes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"changes\": [\n    {\n      \"textToReplace\": \"Hello\",\n      \"newText\": \"Hi\"\n    },\n    {\n      \"textToReplace\": \"world\",\n      \"newText\": \"universe\"\n    },\n    {\n      \"textToReplace\": \"old\",\n      \"newText\": \"new\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/changes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "changes"]
+            }
+          }
+        },
+        {
+          "name": "Replace Word",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"textToReplace\": \"Hello\",\n  \"newText\": \"Hi\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/changes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "changes"]
+            }
+          }
+        },
+        {
+          "name": "Add Text",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"textToReplace\": \"\",\n  \"newText\": \"Additional content \"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/changes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "changes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search Functionality",
+      "item": [
+        {
+          "name": "Search Documents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=search+term",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "search term"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search with Filters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=search+term&public=true&limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "search term"
+                },
+                {
+                  "key": "public",
+                  "value": "true"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search by Tags",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?tags=sample,test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "tags",
+                  "value": "sample,test"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Collaboration",
+      "item": [
+        {
+          "name": "Join Document Collaboration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentId\": \"{{documentId}}\",\n  \"userId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/collaboration/join",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "collaboration", "join"]
+            }
+          }
+        },
+        {
+          "name": "Leave Document Collaboration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentId\": \"{{documentId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/collaboration/leave",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "collaboration", "leave"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Clerk User Created Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "svix-id",
+                "value": "WEBHOOK_ID"
+              },
+              {
+                "key": "svix-timestamp",
+                "value": "TIMESTAMP"
+              },
+              {
+                "key": "svix-signature",
+                "value": "SIGNATURE"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"user.created\",\n  \"data\": {\n    \"id\": \"user_123\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"email_addresses\": [\n      {\n        \"email_address\": \"john@example.com\",\n        \"id\": \"email_123\"\n      }\n    ],\n    \"created_at\": 1234567890\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/clerk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "webhooks", "clerk"]
+            }
+          }
+        },
+        {
+          "name": "Clerk User Updated Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "svix-id",
+                "value": "WEBHOOK_ID"
+              },
+              {
+                "key": "svix-timestamp",
+                "value": "TIMESTAMP"
+              },
+              {
+                "key": "svix-signature",
+                "value": "SIGNATURE"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"user.updated\",\n  \"data\": {\n    \"id\": \"user_123\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Smith\",\n    \"email_addresses\": [\n      {\n        \"email_address\": \"john.smith@example.com\",\n        \"id\": \"email_123\"\n      }\n    ],\n    \"updated_at\": 1234567890\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/clerk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "webhooks", "clerk"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Track Document View",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentId\": \"{{documentId}}\",\n  \"userId\": \"{{userId}}\",\n  \"actionType\": \"view\",\n  \"metadata\": {\n    \"referrer\": \"search\",\n    \"sessionDuration\": 300\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/view",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "view"]
+            }
+          }
+        },
+        {
+          "name": "Track Document Edit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentId\": \"{{documentId}}\",\n  \"userId\": \"{{userId}}\",\n  \"actionType\": \"edit\",\n  \"metadata\": {\n    \"changes\": 5,\n    \"contentLength\": 1500,\n    \"editDuration\": 120\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/edit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "edit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Invalid Document ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/invalid-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "invalid-id"]
+            }
+          }
+        },
+        {
+          "name": "Unauthorized Access",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Unauthorized Update\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          }
+        },
+        {
+          "name": "Invalid Change Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"textToReplace\": \"text that does not exist\",\n  \"newText\": \"new text\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/changes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "changes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complete Workflow",
+      "item": [
+        {
+          "name": "1. Create Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Workflow Test Document\",\n  \"content\": \"Initial content for testing the workflow.\",\n  \"description\": \"A document to test the complete API workflow\",\n  \"tags\": [\"workflow\", \"test\"],\n  \"is_public\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.document && response.document.id) {",
+                  "        pm.collectionVariables.set('documentId', response.document.id);",
+                  "        console.log('Workflow: Document created with ID:', response.document.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Get Document",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          }
+        },
+        {
+          "name": "3. Apply Changes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"textToReplace\": \"Initial content\",\n  \"newText\": \"Updated content\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/changes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "changes"]
+            }
+          }
+        },
+        {
+          "name": "4. Search Document",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "workflow"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Update Metadata",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Workflow Test Document\",\n  \"description\": \"Updated description after workflow test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          }
+        },
+        {
+          "name": "6. Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "__session={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

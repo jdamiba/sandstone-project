@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Document } from "@/types/database";
-import { generateChangeRequests, runTestCases } from "@/lib/textDiff";
+
 import { useCollaboration, CollaborationUser } from "@/lib/collaboration";
 import CollaborationUI from "./CollaborationUI";
 import CollaborativeCursor from "./CollaborativeCursor";
@@ -101,13 +101,6 @@ export default function DocumentEditor({
     console.log("Change detection - formData.content:", formData.content);
     console.log("Change detection - hasChanges:", changed);
   }, [formData, document, currentContent]);
-
-  // Run test cases on component mount (for debugging)
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      runTestCases();
-    }
-  }, []);
 
   // Setup collaboration
   useEffect(() => {
@@ -245,72 +238,10 @@ export default function DocumentEditor({
 
     setIsSaving(true);
     try {
-      // Handle content changes using the change request API
-      if (formData.content !== currentContent) {
-        // Generate minimal text changes
-        const textChanges = generateChangeRequests(
-          currentContent,
-          formData.content
-        );
-
-        // Debug logging
-        console.log("Current content:", JSON.stringify(currentContent));
-        console.log("New content:", JSON.stringify(formData.content));
-        console.log("Generated changes:", textChanges);
-
-        // Test with your example
-        if (
-          currentContent === "I love reading books" &&
-          formData.content === "I love reading emails"
-        ) {
-          console.log("Testing your specific example...");
-          const testChanges = generateChangeRequests(
-            "I love reading books",
-            "I love reading emails"
-          );
-          console.log("Test changes:", testChanges);
-        }
-
-        // Apply each change sequentially
-        let updatedContent = currentContent;
-        for (const change of textChanges) {
-          const contentResponse = await fetch(
-            `/api/documents/${document.id}/changes`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                textToReplace: change.textToReplace,
-                newText: change.newText,
-              }),
-            }
-          );
-
-          if (!contentResponse.ok) {
-            const error = await contentResponse.json();
-            throw new Error(error.error || "Failed to update document content");
-          }
-
-          const contentResult = await contentResponse.json();
-          updatedContent = contentResult.documentText;
-        }
-
-        // Update the current content with the final result
-        setCurrentContent(updatedContent);
-        // Update form data to reflect the saved content
-        setFormData((prev) => ({
-          ...prev,
-          content: updatedContent,
-        }));
-
-        console.log("Save: Updated content to:", updatedContent);
-      }
-
-      // Handle other metadata changes using the general PUT endpoint
-      const metadataChanges = {
+      // Handle all changes using the PUT endpoint
+      const updateData = {
         title: formData.title.trim(),
+        content: formData.content,
         description: formData.description.trim() || null,
         tags: formData.tags
           .split(",")
@@ -322,31 +253,23 @@ export default function DocumentEditor({
         require_approval: formData.require_approval,
       };
 
-      // Only update metadata if there are changes
-      const hasMetadataChanges =
-        metadataChanges.title !== document.title ||
-        metadataChanges.description !== (document.description || "") ||
-        JSON.stringify(metadataChanges.tags) !==
-          JSON.stringify(document.tags || []) ||
-        metadataChanges.is_public !== document.is_public ||
-        metadataChanges.allow_comments !== document.allow_comments ||
-        metadataChanges.allow_suggestions !== document.allow_suggestions ||
-        metadataChanges.require_approval !== document.require_approval;
+      const response = await fetch(`/api/documents/${document.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
 
-      if (hasMetadataChanges) {
-        const metadataResponse = await fetch(`/api/documents/${document.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(metadataChanges),
-        });
-
-        if (!metadataResponse.ok) {
-          const error = await metadataResponse.json();
-          throw new Error(error.error || "Failed to update document metadata");
-        }
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to save document");
       }
+
+      // Update the current content with the saved content
+      setCurrentContent(formData.content);
+
+      console.log("Save: Document updated successfully");
 
       // Don't exit edit mode, just reset the change detection
       setHasChanges(false);
@@ -355,9 +278,9 @@ export default function DocumentEditor({
       if (onSave) {
         onSave({
           ...document,
-          ...metadataChanges,
-          content: currentContent,
-          description: metadataChanges.description || undefined,
+          ...updateData,
+          content: formData.content,
+          description: updateData.description || undefined,
         });
       }
 

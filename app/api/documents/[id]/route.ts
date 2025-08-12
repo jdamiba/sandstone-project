@@ -138,7 +138,9 @@ export const PUT = withAuthAppRouter(
 
     // Extract document ID from params or URL
     let id: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (params && (params as any).params) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const paramsData = await (params as unknown as DocumentRouteProps).params;
       id = paramsData.id;
     } else {

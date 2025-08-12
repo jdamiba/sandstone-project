@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { pool } from "@/lib/database";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Test basic database connection
     const result = await pool.query("SELECT NOW() as current_time");

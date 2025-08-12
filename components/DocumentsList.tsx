@@ -39,21 +39,26 @@ export default function DocumentsList({
       setIsLoading(true);
       try {
         let url = "/api/documents";
+        const params = new URLSearchParams();
+
         if (search && search.trim()) {
           url = `/api/search?q=${encodeURIComponent(search.trim())}`;
+        } else {
+          // Add public filter parameter to the API call
+          if (showOnlyPublic) {
+            params.append("public", "true");
+          }
+          if (params.toString()) {
+            url += `?${params.toString()}`;
+          }
         }
 
         const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
           // Handle both regular documents and search results
-          let docs = data.documents || data;
+          let docs = data.data || data.documents || data;
           docs = Array.isArray(docs) ? docs : [];
-
-          // Apply public filter if enabled
-          if (showOnlyPublic) {
-            docs = docs.filter((doc: Document) => doc.is_public);
-          }
 
           setDocuments(docs);
         }

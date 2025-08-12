@@ -95,14 +95,14 @@ export const GET = withAuthAppRouter(
     LEFT JOIN document_collaborators dc ON d.id = dc.document_id AND dc.is_active = TRUE
     WHERE (
       d.owner_id = $1 OR 
-      (d.is_public = TRUE ${
+      d.is_public = TRUE ${
         publicOnly
           ? ""
           : `OR EXISTS (
         SELECT 1 FROM document_collaborators 
         WHERE document_id = d.id AND user_id = $1 AND is_active = TRUE
       )`
-      })
+      }
     )
   `;
 
@@ -133,14 +133,14 @@ export const GET = withAuthAppRouter(
     FROM documents d
     WHERE (
       d.owner_id = $1 OR 
-      (d.is_public = TRUE ${
+      d.is_public = TRUE ${
         publicOnly
           ? ""
           : `OR EXISTS (
         SELECT 1 FROM document_collaborators 
         WHERE document_id = d.id AND user_id = $1 AND is_active = TRUE
       )`
-      })
+      }
     )
     ${search ? `AND (d.title ILIKE $2 OR d.description ILIKE $2)` : ""}
     ${publicOnly ? "AND d.is_public = TRUE" : ""}

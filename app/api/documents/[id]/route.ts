@@ -135,7 +135,18 @@ export const PUT = withAuthAppRouter(
 
     // Type assertion for authenticated context
     const authContext = context as { user: { id: string }; userId: string };
-    const { id } = await (params as unknown as DocumentRouteProps).params;
+
+    // Extract document ID from params or URL
+    let id: string;
+    if (params && (params as any).params) {
+      const paramsData = await (params as unknown as DocumentRouteProps).params;
+      id = paramsData.id;
+    } else {
+      // Fallback: extract from URL path
+      const url = new URL(req.url);
+      const pathParts = url.pathname.split("/");
+      id = pathParts[pathParts.length - 1];
+    }
 
     console.log("PUT /api/documents/[id] - Document ID:", id);
     console.log("PUT /api/documents/[id] - User ID:", authContext.user.id);

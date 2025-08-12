@@ -134,15 +134,13 @@ export function withAuthAppRouter<
       userId,
     };
 
-    if (params) {
-      return await (handler as AppRouterHandlerWithParams)(
-        req,
-        authContext,
-        params
-      );
-    } else {
-      return await (handler as AppRouterHandler)(req, authContext);
-    }
+    // Always pass params to the handler, even if it's undefined
+    // The handler can handle undefined params appropriately
+    return await (handler as AppRouterHandlerWithParams)(
+      req,
+      authContext,
+      params
+    );
   }) as T);
 }
 

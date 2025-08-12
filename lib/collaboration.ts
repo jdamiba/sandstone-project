@@ -389,6 +389,14 @@ export class CollaborationManager {
     this.onError = callback;
   }
 
+  public getDocumentId(): string | null {
+    return this.documentId;
+  }
+
+  public getUserId(): string | null {
+    return this.userId;
+  }
+
   public disconnect() {
     if (this.socket) {
       this.socket.disconnect();

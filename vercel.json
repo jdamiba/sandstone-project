@@ -8,10 +8,5 @@
   ],
   "env": {
     "NEXT_PUBLIC_COLLABORATION_URL": "@collaboration-url"
-  },
-  "functions": {
-    "app/api/**/*.ts": {
-      "maxDuration": 30
-    }
   }
 }

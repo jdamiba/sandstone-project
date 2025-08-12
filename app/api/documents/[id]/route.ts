@@ -131,9 +131,14 @@ export const PUT = withAuthAppRouter(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: any
   ) => {
+    console.log("PUT /api/documents/[id] - Starting request");
+
     // Type assertion for authenticated context
     const authContext = context as { user: { id: string }; userId: string };
     const { id } = await (params as unknown as DocumentRouteProps).params;
+
+    console.log("PUT /api/documents/[id] - Document ID:", id);
+    console.log("PUT /api/documents/[id] - User ID:", authContext.user.id);
 
     // Validate document ID
     validateUUID(id, "documentId");
@@ -229,28 +234,35 @@ export const PUT = withAuthAppRouter(
         throw new NotFoundError("Document not found or access denied");
       }
 
-      // Track analytics
-      const analyticsQuery = `
-      INSERT INTO document_analytics (
-        document_id, 
-        user_id, 
-        action_type, 
-        metadata
-      ) VALUES ($1, $2, $3, $4)
-    `;
+      // Track analytics (completely optional - skip if any issues)
+      try {
+        const analyticsQuery = `
+        INSERT INTO document_analytics (
+          document_id, 
+          user_id, 
+          action_type, 
+          metadata
+        ) VALUES ($1, $2, $3, $4)
+      `;
 
-      await pool.query(analyticsQuery, [
-        id,
-        authContext.user.id,
-        "edit",
-        { action: "document_updated", fields: Object.keys(validatedBody) },
-      ]);
+        await pool.query(analyticsQuery, [
+          id,
+          authContext.user.id,
+          "edit",
+          { action: "document_updated", fields: Object.keys(validatedBody) },
+        ]);
+      } catch (analyticsError) {
+        // Silently ignore analytics errors - don't fail the main operation
+        console.warn("Analytics tracking failed (ignored):", analyticsError);
+      }
 
       return createSuccessResponse({
         document: result.rows[0],
         message: "Document updated successfully",
       });
     } catch (error) {
+      console.error("PUT /api/documents/[id] error:", error);
+
       if (
         error instanceof NotFoundError ||
         error instanceof ForbiddenError ||
